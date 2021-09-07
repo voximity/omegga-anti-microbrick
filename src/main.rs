@@ -144,7 +144,8 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
     let keys = omegga.store_keys().await?;
     for key in keys.iter().filter_map(|key| key.strip_prefix("ts:")) {
         // if we didn't pick them up,
-        if !micro_owners.contains(&key.parse()?) {
+        let parsed = key.parse()?;
+        if cleared_owners.contains(&parsed) || !micro_owners.contains(&parsed) {
             // get em outta here
             omegga.store_delete(format!("ts:{}", key)).await;
         }
