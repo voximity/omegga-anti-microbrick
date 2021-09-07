@@ -86,6 +86,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
     let (bricks, _) = reader.read_bricks(&header1, &header2)?;
 
     let mut micro_owners = HashSet::new();
+    let mut cleared_owners = HashSet::new();
 
     for brick in bricks.into_iter() {
         let asset = header2.brick_assets[brick.asset_name_index as usize].as_str();
@@ -96,7 +97,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
                 n => &header2.brick_owners[n as usize - 1],
             };
 
-            if micro_owners.contains(&owner.id) {
+            if micro_owners.contains(&owner.id) || cleared_owners.contains(&owner.id) {
                 continue;
             }
 
@@ -111,8 +112,9 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 
                     if now >= ts + config.clear_after as u64 * 60 {
                         // clear bricks
-                        omegga.broadcast(format!("Clearing the <color=\"ff0\">{}</> bricks of <color=\"ff0\">{}</>...", owner.name, owner.bricks));
+                        omegga.broadcast(format!("Clearing the <color=\"ff0\">{}</> bricks of <color=\"ff0\">{}</>...", owner.bricks, owner.name));
                         omegga.clear_bricks(owner.id.to_string(), false);
+                        cleared_owners.insert(owner.id);
                     } else {
                         // warn the player
                         micro_owners.insert(owner.id);
@@ -125,8 +127,9 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 
                     // if the clear_after amount is 0, just immediately clear bricks
                     if config.clear_after == 0 {
-                        omegga.broadcast(format!("Clearing the <color=\"ff0\">{}</> bricks of <color=\"ff0\">{}</>...", owner.name, owner.bricks));
+                        omegga.broadcast(format!("Clearing the <color=\"ff0\">{}</> bricks of <color=\"ff0\">{}</>...", owner.bricks, owner.name));
                         omegga.clear_bricks(owner.id.to_string(), false);
+                        cleared_owners.insert(owner.id);
                     } else {
                         micro_owners.insert(owner.id);
                         omegga.store_set(format!("ts:{}", owner.id), Value::String(ts.to_string()));
