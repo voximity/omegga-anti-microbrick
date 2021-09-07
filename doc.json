@@ -1,0 +1,13 @@
+{
+    "name": "anti_microbrick",
+    "description": "Prevents microbricks from being placed on the server, warning players that place them and eventually clearing them.",
+    "author": "x",
+    "config": {
+        "clear-after-minutes": {
+            "description": "How many minutes to wait before clearing someone's bricks if they've placed microbricks.",
+            "type": "number",
+            "default": 10
+        }
+    },
+    "commands": []
+}
