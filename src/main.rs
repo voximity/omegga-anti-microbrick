@@ -155,5 +155,5 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 }
 
 fn warn_player(omegga: &Omegga, target: impl ToString) {
-    omegga.whisper(target.to_string(), "<color=\"a00\">Microbricks are not allowed on this server!</> Please delete your microbricks or your bricks will be cleared.");
+    omegga.whisper(target.to_string(), "<color=\"a00\">Microbricks are not allowed on this server!</> Please delete your microbricks or <b>your bricks will be cleared</>.");
 }
