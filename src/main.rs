@@ -112,7 +112,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 
                     if now >= ts + config.clear_after as u64 * 60 {
                         // clear bricks
-                        omegga.broadcast(format!("Clearing the <color=\"ff0\">{}</>'s <color=\"ff0\">{}</> bricks (microbrick violation)...", owner.name, owner.bricks));
+                        omegga.broadcast(format!("Clearing <color=\"ff0\">{}</>'s <color=\"ff0\">{}</> bricks (microbrick violation)...", owner.name, owner.bricks));
                         omegga.clear_bricks(owner.id.to_string(), false);
                         cleared_owners.insert(owner.id);
                     } else {
@@ -127,7 +127,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 
                     // if the clear_after amount is 0, just immediately clear bricks
                     if config.clear_after == 0 {
-                        omegga.broadcast(format!("Clearing the <color=\"ff0\">{}</>'s <color=\"ff0\">{}</> bricks (microbrick violation)...", owner.name, owner.bricks));
+                        omegga.broadcast(format!("Clearing <color=\"ff0\">{}</>'s <color=\"ff0\">{}</> bricks (microbrick violation)...", owner.name, owner.bricks));
                         omegga.clear_bricks(owner.id.to_string(), false);
                         cleared_owners.insert(owner.id);
                     } else {
