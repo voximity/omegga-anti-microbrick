@@ -111,6 +111,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 
                     if now >= ts + config.clear_after as u64 * 60 {
                         // clear bricks
+                        omegga.broadcast(format!("Clearing the <color=\"ff0\">{}</> bricks of <color=\"ff0\">{}</>...", owner.name, owner.bricks));
                         omegga.clear_bricks(owner.id.to_string(), false);
                     } else {
                         // warn the player
@@ -124,6 +125,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 
                     // if the clear_after amount is 0, just immediately clear bricks
                     if config.clear_after == 0 {
+                        omegga.broadcast(format!("Clearing the <color=\"ff0\">{}</> bricks of <color=\"ff0\">{}</>...", owner.name, owner.bricks));
                         omegga.clear_bricks(owner.id.to_string(), false);
                     } else {
                         micro_owners.insert(owner.id);
