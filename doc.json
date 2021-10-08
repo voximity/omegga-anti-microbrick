@@ -7,6 +7,21 @@
             "description": "How many minutes to wait before clearing someone's bricks if they've placed microbricks.",
             "type": "number",
             "default": 10
+        },
+        "max-violations": {
+            "description": "The number of violations a user can make before being temporarily banned for `ban-time`.",
+            "type": "number",
+            "default": 5
+        },
+        "ban-time": {
+            "description": "The length of the temporary ban, in minutes.",
+            "type": "number",
+            "default": 30
+        },
+        "max-bans": {
+            "description": "How many temporary bans before permanently banning a user.",
+            "type": "number",
+            "default": 3
         }
     },
     "commands": []
