@@ -219,7 +219,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
             omegga.whisper(
                 id.to_string(),
                 format!(
-                    "<b>You currently have {} microbrick violations. At {}, you will be temporarily banned.</>",
+                    "<b>You currently have {} microbrick violations. After {}, you will be temporarily banned.</>",
                     violations,
                     config.max_violations
                 )
