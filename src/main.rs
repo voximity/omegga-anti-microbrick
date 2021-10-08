@@ -8,13 +8,19 @@ use std::{
 use anyhow::Result;
 use brickadia::{read::SaveReader, save::SaveData, write::SaveWriter};
 use chrono::Utc;
+use lazy_static::lazy_static;
 use omegga::{rpc, Omegga};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 
 pub const ASEZ: &'static str = "autosave_ez";
 pub const SAVES_LOC: &'static str = "../../data/Saved/Builds";
 pub const SAVE_LOC: &'static str = "_anti_microbrick.brs";
+
+lazy_static! {
+    static ref PUBLIC_ID: Uuid = Uuid::parse_str("ffffffff-ffff-ffff-ffff-ffffffffffff").unwrap();
+}
 
 #[derive(Serialize, Deserialize)]
 struct Config {
@@ -113,7 +119,10 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
                 n => &header2.brick_owners[n as usize - 1],
             };
 
-            if micro_owners.contains(&owner.id) || cleared_owners.contains(&owner.id) {
+            if micro_owners.contains(&owner.id)
+                || cleared_owners.contains(&owner.id)
+                || owner.id == *PUBLIC_ID
+            {
                 continue;
             }
 

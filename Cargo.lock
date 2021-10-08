@@ -290,15 +290,17 @@ dependencies = [
 
 [[package]]
 name = "omegga-anti-microbrick"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "brickadia",
  "chrono",
+ "lazy_static",
  "omegga",
  "serde",
  "serde_json",
  "tokio",
+ "uuid",
 ]
 
 [[package]]
