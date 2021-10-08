@@ -211,7 +211,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
                 omegga.writeln(format!(
                     "Chat.Command /Ban {} {} \"Microbricks are not allowed on this server. This ban will be permanent in {} more violations.\"",
                     id,
-                    config.ban_time * 60_000.,
+                    config.ban_time,
                     config.max_bans - bans as u32,
                 ));
             }
