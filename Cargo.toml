@@ -1,11 +1,11 @@
 [package]
 name = "omegga-anti-microbrick"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 
 [dependencies]
 anyhow = "1.0.43"
-brickadia = "0.1.17"
+brickadia = "0.1.18"
 chrono = "0.4"
 omegga = "0.2.11"
 serde = "1.0"
