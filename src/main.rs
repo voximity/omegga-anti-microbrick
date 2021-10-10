@@ -277,9 +277,12 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 }
 
 fn warn_player(omegga: &Omegga, players: &[Player], target: impl ToString) {
-    let target = target.to_string().to_lowercase();
+    let target = target.to_string();
 
-    if !players.iter().any(|p| p.name.to_lowercase() == target) {
+    if !players
+        .iter()
+        .any(|p| p.name.eq_ignore_ascii_case(target.as_str()))
+    {
         return;
     }
 
