@@ -107,7 +107,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
 
     // at this point, we know we have microbricks, so let's scan the save for them
     reader.skip_preview()?;
-    let (mut bricks, _) = reader.read_bricks(&header1, &header2)?;
+    let (mut bricks, components) = reader.read_bricks(&header1, &header2)?;
 
     let mut micro_owners = HashSet::new();
     let mut cleared_owners = HashSet::new();
@@ -244,6 +244,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
         header1,
         header2,
         bricks,
+        components,
         ..Default::default()
     };
 

@@ -34,9 +34,9 @@ checksum = "521f9cfb75191e53bc98586398c3104a2b10812475930f09eeccb5144fc3e68b"
 
 [[package]]
 name = "brickadia"
-version = "0.1.22"
+version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dface9df1a48404d2018b25b502e1f1da28fcb5185a1a34134f5471faec2fc2"
+checksum = "2495615f19bdd1ec102f8f4fb7ee9ca1b46b5fcde4c080ef089d97e456c1e7b1"
 dependencies = [
  "bitstream-io",
  "byteorder",
