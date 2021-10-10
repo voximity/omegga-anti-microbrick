@@ -5,7 +5,7 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0.43"
-brickadia = "0.1.22"
+brickadia = "0.1.23"
 chrono = "0.4"
 omegga = "0.2.11"
 serde = "1.0"
