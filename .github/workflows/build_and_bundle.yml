@@ -10,19 +10,20 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
+    
     - name: Build
       run: cargo build --verbose --release
+      
     - name: Move binary
       run: cp ./target/release/${REPOSITORY} ./bin/${REPOSITORY}
+      
     - name: Commit
       uses: EndBug/add-and-commit@v7
       with:
-        author_name: AutoBundle
-        author_email: cake@brickadia.dev
-        message: 'chore: build and bundle release binary'
+        author_name: BrickBot
+        author_email: brickbot@brickadia.dev
+        message: 'chore(bundle): build and bundle release binary'
         add: '*'
