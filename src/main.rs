@@ -9,14 +9,14 @@ use anyhow::Result;
 use brickadia::{read::SaveReader, save::SaveData, write::SaveWriter};
 use chrono::Utc;
 use lazy_static::lazy_static;
-use omegga::{rpc, Omegga};
+use omegga::{resources::Player, rpc, Omegga};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-pub const ASEZ: &'static str = "autosave_ez";
-pub const SAVES_LOC: &'static str = "../../data/Saved/Builds";
-pub const SAVE_LOC: &'static str = "_anti_microbrick.brs";
+pub const ASEZ: &str = "autosave_ez";
+pub const SAVES_LOC: &str = "../../data/Saved/Builds";
+pub const SAVE_LOC: &str = "_anti_microbrick.brs";
 
 lazy_static! {
     static ref PUBLIC_ID: Uuid = Uuid::parse_str("ffffffff-ffff-ffff-ffff-ffffffffffff").unwrap();
@@ -67,7 +67,7 @@ async fn main() {
                 method, params, id, ..
             } if method == "plugin:emit" => {
                 let params = params.unwrap();
-                let mut params = params.as_array().unwrap().into_iter();
+                let mut params = params.as_array().unwrap().iter();
                 let event = params.next().unwrap().as_str().unwrap();
                 let from = params.next().unwrap().as_str().unwrap();
 
@@ -92,6 +92,8 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
     let mut reader = SaveReader::new(File::open(path)?)?;
     let header1 = reader.read_header1()?;
     let header2 = reader.read_header2()?;
+
+    let players = omegga.get_players().await?;
 
     // expect there to be no microbricks
     if !header2
@@ -145,7 +147,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
                     } else {
                         // warn the player
                         micro_owners.insert(owner.id);
-                        warn_player(omegga, owner.id);
+                        warn_player(omegga, &players, owner.id);
                     }
                 }
                 _ => {
@@ -162,7 +164,7 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
                     } else {
                         micro_owners.insert(owner.id);
                         omegga.store_set(format!("ts:{}", owner.id), Value::String(ts.to_string()));
-                        warn_player(omegga, owner.id);
+                        warn_player(omegga, &players, owner.id);
                     }
                 }
             }
@@ -274,6 +276,12 @@ async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<(
     Ok(())
 }
 
-fn warn_player(omegga: &Omegga, target: impl ToString) {
-    omegga.whisper(target.to_string(), "<size=\"30\"><color=\"a00\">Microbricks are not allowed on this server!</> Please delete your microbricks or <b>they will be cleared</>.</>");
+fn warn_player(omegga: &Omegga, players: &[Player], target: impl ToString) {
+    let target = target.to_string().to_lowercase();
+
+    if !players.iter().any(|p| p.name.to_lowercase() == target) {
+        return;
+    }
+
+    omegga.whisper(target, "<size=\"30\"><color=\"a00\">Microbricks are not allowed on this server!</> Please delete your microbricks or <b>they will be cleared</>.</>");
 }
