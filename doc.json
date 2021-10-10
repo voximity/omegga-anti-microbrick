@@ -3,6 +3,11 @@
     "description": "Prevents microbricks from being placed on the server, warning players that place them and eventually clearing them.",
     "author": "x",
     "config": {
+        "authorized": {
+            "description": "A list of players that are able to use the admin commands.",
+            "type": "players",
+            "default": []
+        },
         "clear-after-minutes": {
             "description": "How many minutes to wait before clearing someone's bricks if they've placed microbricks.",
             "type": "number",
@@ -24,5 +29,20 @@
             "default": 3
         }
     },
-    "commands": []
+    "commands": [
+        {
+            "name": "/am clean",
+            "description": "Clean the record of a player, removing their stored violation count and ban count.",
+            "example": "/am clean Kenko",
+            "args": [
+                {"name": "user", "description": "The player to clean.", "required": true}
+            ]
+        },
+        {
+            "name": "/am wipe",
+            "description": "Wipe all player records, removing all violations and bans.",
+            "example": "/am wipe",
+            "args": []
+        }
+    ]
 }

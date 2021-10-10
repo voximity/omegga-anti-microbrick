@@ -9,7 +9,7 @@ use anyhow::Result;
 use brickadia::{read::SaveReader, save::SaveData, write::SaveWriter};
 use chrono::Utc;
 use lazy_static::lazy_static;
-use omegga::{resources::Player, rpc, Omegga};
+use omegga::{events::Event, resources::Player, Omegga};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -22,8 +22,16 @@ lazy_static! {
     static ref PUBLIC_ID: Uuid = Uuid::parse_str("ffffffff-ffff-ffff-ffff-ffffffffffff").unwrap();
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct AuthPlayer {
+    name: String,
+    id: String,
+}
+
 #[derive(Serialize, Deserialize)]
 struct Config {
+    authorized: Vec<AuthPlayer>,
+
     #[serde(rename = "clear-after-minutes")]
     clear_after: f32,
 
@@ -49,12 +57,7 @@ async fn main() {
 
     while let Some(message) = rx.recv().await {
         match message {
-            rpc::Message::Request {
-                method,
-                params: _params,
-                id,
-                ..
-            } if method == "init" || method == "stop" => {
+            Event::Init { id, .. } | Event::Stop { id, .. } => {
                 omegga.write_response(id, None, None);
 
                 // when the plugin initializes, connect to asez. we will expect a "connected" request later on
@@ -63,26 +66,86 @@ async fn main() {
                     .await
                     .unwrap();
             }
-            rpc::Message::Request {
-                method, params, id, ..
-            } if method == "plugin:emit" => {
-                let params = params.unwrap();
-                let mut params = params.as_array().unwrap().iter();
-                let event = params.next().unwrap().as_str().unwrap();
-                let from = params.next().unwrap().as_str().unwrap();
+            Event::Command {
+                player,
+                command,
+                args,
+            } => {
+                if command != "am" {
+                    continue;
+                }
 
-                match (from, event) {
-                    (ASEZ, "save") => {
-                        let save_path = params.next().unwrap().as_str().unwrap();
-                        let mut path = PathBuf::from("../..");
-                        path.push(save_path);
-                        if let Err(e) = check_save(&omegga, &config, path).await {
-                            omegga.error(format!("failed to check save: {}", e));
-                        }
+                if !config
+                    .authorized
+                    .iter()
+                    .any(|p| p.name.eq_ignore_ascii_case(player.as_str()))
+                {
+                    continue;
+                }
+
+                let subcommand = &args[0];
+
+                match subcommand.as_str() {
+                    "clean" => {
+                        let target = match args.get(0) {
+                            Some(t) => t,
+                            None => {
+                                omegga
+                                    .whisper(player, format!("Please specify a player to clean."));
+                                continue;
+                            }
+                        };
+
+                        let target = match omegga.get_player(target).await {
+                            Ok(Some(p)) => p,
+                            _ => {
+                                omegga.whisper(
+                                    player,
+                                    format!("The player must be online to clean their record."),
+                                );
+                                continue;
+                            }
+                        };
+
+                        omegga.store_delete(format!("ts:{}", target.id)).await;
+                        omegga
+                            .store_delete(format!("violations:{}", target.id))
+                            .await;
+                        omegga.store_delete(format!("bans:{}", target.id)).await;
+
+                        omegga.whisper(
+                            player,
+                            format!("Cleared <b>{}</>'s record, if any.", target.name),
+                        );
                     }
-                    _ => omegga.write_response(id, None, None),
+                    "wipe" => match args.get(0) {
+                        Some(s) if s.as_str() == "yes" => {
+                            omegga.store_wipe();
+                            omegga.whisper(player, "OK, all records wiped.");
+                        }
+                        _ => {
+                            omegga.whisper(player, format!("<b>Are you sure you wish to wipe all records?</> Please run <code>/am wipe yes</> to confirm."));
+                        }
+                    },
+                    x => omegga.whisper(player, format!("Invalid subcommand <code>/am {}</>.", x)),
                 }
             }
+            Event::PluginEmit {
+                id,
+                event,
+                from,
+                args,
+            } => match (from.as_str(), event.as_str()) {
+                (ASEZ, "save") => {
+                    let save_path = args[0].as_str().unwrap();
+                    let mut path = PathBuf::from("../..");
+                    path.push(save_path);
+                    if let Err(e) = check_save(&omegga, &config, path).await {
+                        omegga.error(format!("failed to check save: {}", e));
+                    }
+                }
+                _ => omegga.write_response(id, None, None),
+            },
             _ => (),
         }
     }
