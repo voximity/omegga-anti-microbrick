@@ -84,22 +84,20 @@ async fn main() {
 
                 match subcommand.as_str() {
                     "clean" => {
-                        let target = match args.get(0) {
-                            Some(t) => t,
+                        let target = match args.get(1) {
+                            Some(t) => match omegga.get_player(t).await {
+                                Ok(Some(p)) => p,
+                                _ => {
+                                    omegga.whisper(
+                                        player,
+                                        format!("The player must be online to clean their record."),
+                                    );
+                                    continue;
+                                }
+                            },
                             None => {
                                 omegga
                                     .whisper(player, format!("Please specify a player to clean."));
-                                continue;
-                            }
-                        };
-
-                        let target = match omegga.get_player(target).await {
-                            Ok(Some(p)) => p,
-                            _ => {
-                                omegga.whisper(
-                                    player,
-                                    format!("The player must be online to clean their record."),
-                                );
                                 continue;
                             }
                         };
@@ -115,7 +113,7 @@ async fn main() {
                             format!("Cleared <b>{}</>'s record, if any.", target.name),
                         );
                     }
-                    "wipe" => match args.get(0) {
+                    "wipe" => match args.get(1) {
                         Some(s) if s.as_str() == "yes" => {
                             omegga.store_wipe();
                             omegga.whisper(player, "OK, all records wiped.");
