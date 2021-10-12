@@ -54,14 +54,21 @@ async fn main() {
 
     while let Some(message) = rx.recv().await {
         match message {
-            Event::Init { id, .. } | Event::Stop { id, .. } => {
-                omegga.write_response(id, Some(serde_json::json!({"registeredCommands": ["am"]})), None);
+            Event::Init { id, .. } => {
+                omegga.write_response(
+                    id,
+                    Some(serde_json::json!({"registeredCommands": ["am"]})),
+                    None,
+                );
 
                 // when the plugin initializes, connect to asez. we will expect a "connected" request later on
                 omegga
                     .emit_plugin::<u8>(ASEZ.into(), "connect".into(), vec![])
                     .await
                     .unwrap();
+            }
+            Event::Stop { id, .. } => {
+                omegga.write_response(id, None, None);
             }
             Event::Command {
                 player,
@@ -81,20 +88,19 @@ async fn main() {
                 }
 
                 let subcommand = &args[0];
+                let players = match omegga.get_players().await {
+                    Ok(p) => p,
+                    Err(_) => continue,
+                };
 
                 match subcommand.as_str() {
                     "clean" => {
-                        let target = match args.get(1) {
-                            Some(t) => match omegga.get_player(t).await {
-                                Ok(Some(p)) => p,
-                                _ => {
-                                    omegga.whisper(
-                                        player,
-                                        format!("The player must be online to clean their record."),
-                                    );
-                                    continue;
-                                }
-                            },
+                        let target = args.into_iter().skip(1).collect::<String>().to_lowercase();
+                        let target = match players
+                            .iter()
+                            .find(|p| p.name.to_lowercase().starts_with(&target))
+                        {
+                            Some(p) => p,
                             None => {
                                 omegga
                                     .whisper(player, format!("Please specify a player to clean."));
