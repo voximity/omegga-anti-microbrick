@@ -55,7 +55,7 @@ async fn main() {
     while let Some(message) = rx.recv().await {
         match message {
             Event::Init { id, .. } | Event::Stop { id, .. } => {
-                omegga.write_response(id, None, None);
+                omegga.write_response(id, Some(serde_json::json!({"registeredCommands": ["am"]})), None);
 
                 // when the plugin initializes, connect to asez. we will expect a "connected" request later on
                 omegga
