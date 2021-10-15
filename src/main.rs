@@ -141,6 +141,7 @@ async fn main() {
                     let save_path = args[0].as_str().unwrap();
                     let mut path = PathBuf::from("../..");
                     path.push(save_path);
+                    omegga.write_response(id, None, None);
                     if let Err(e) = check_save(&omegga, &config, path).await {
                         omegga.error(format!("failed to check save: {}", e));
                     }
@@ -153,9 +154,6 @@ async fn main() {
 }
 
 async fn check_save(omegga: &Omegga, config: &Config, path: PathBuf) -> Result<()> {
-    // wait a short moment for asez (sometimes we are faster)
-    tokio::time::sleep(Duration::from_secs(1)).await;
-
     let mut reader = SaveReader::new(File::open(path)?)?;
     let header1 = reader.read_header1()?;
     let header2 = reader.read_header2()?;

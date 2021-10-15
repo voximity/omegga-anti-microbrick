@@ -7,7 +7,7 @@ edition = "2018"
 anyhow = "1.0.43"
 brickadia = "0.1.23"
 chrono = "0.4"
-omegga = "0.3.2"
+omegga = "0.3.3"
 serde = "1.0"
 serde_json = "1.0"
 tokio = { version = "1.10", features = ["full"] }
