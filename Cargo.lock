@@ -276,9 +276,9 @@ dependencies = [
 
 [[package]]
 name = "omegga"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57d3fd0704d8c9392daa1fda8b996463213b613937323d35422a8cb97d773a67"
+checksum = "eec933882d59237306e97847c616c322abf4d3f6678be45986d77a413bec9cee"
 dependencies = [
  "brickadia",
  "dashmap",
